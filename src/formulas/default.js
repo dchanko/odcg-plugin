@@ -18,6 +18,20 @@ export default {
   formatGrandTotal(value) {
     return value.toFixed(2);
   },
+  gradeRanges: [
+    { max: 1, label: 'FL' },
+    { max: 2, label: 'VVS1' },
+    { max: 3, label: 'VVS2' },
+    { max: 4, label: 'VS1' },
+    { max: 5, label: 'VS2' },
+    { max: 6, label: 'SI1' },
+    { max: 7, label: 'SI2' },
+    { max: 8, label: 'SI3' },
+    { max: 9, label: 'I1' },
+    { max: 10, label: 'I2' },
+    { max: 11, label: 'I3' }
+  ],
+  fallbackGrade: 'Reject',
   resultLabel: 'Inclusion Clarity Rating',
   grandTotalLabel: 'Diamond Clarity Rating',
   minLines: 1,

@@ -1,9 +1,9 @@
 import {
   validateFields,
   computeResult,
-  formatResult,
+  formatResultDisplay,
   computeGrandTotal,
-  formatGrandTotal,
+  formatGrandTotalDisplay,
 } from '../calculator.js';
 
 function createFieldElement(field, lineIndex) {
@@ -228,7 +228,7 @@ export function renderWidget(container, formula) {
         continue;
       }
 
-      entry.resultOutput.textContent = formatResult(formula, result);
+      entry.resultOutput.textContent = formatResultDisplay(formula, result);
       validResults.push(result);
       validCount += 1;
     }
@@ -255,7 +255,7 @@ export function renderWidget(container, formula) {
       return;
     }
 
-    grandTotalOutput.textContent = formatGrandTotal(formula, result);
+    grandTotalOutput.textContent = formatGrandTotalDisplay(formula, result);
   }
 
   function removeLine(lineEl) {

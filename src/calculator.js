@@ -87,6 +87,31 @@ export function formatGrandTotal(formula, result) {
   return formatter ? formatter(result) : String(result);
 }
 
+export function getGradeLabel(formula, value) {
+  const ranges = formula.gradeRanges;
+  if (!ranges?.length) return null;
+  for (const range of ranges) {
+    if (value < range.max) return range.label;
+  }
+  return formula.fallbackGrade ?? ranges[ranges.length - 1].label;
+}
+
+export function formatValueDisplay(formula, value, formatter) {
+  const formatted = formatter ? formatter(value) : String(value);
+  const grade = getGradeLabel(formula, value);
+  return grade ? `${formatted} (${grade})` : formatted;
+}
+
+export function formatResultDisplay(formula, value) {
+  const formatter = formula.formatResult ?? null;
+  return formatValueDisplay(formula, value, formatter);
+}
+
+export function formatGrandTotalDisplay(formula, value) {
+  const formatter = formula.formatGrandTotal ?? formula.formatResult ?? null;
+  return formatValueDisplay(formula, value, formatter);
+}
+
 export function applyFieldOverrides(formula, overrides) {
   if (!overrides || Object.keys(overrides).length === 0) {
     return formula;
