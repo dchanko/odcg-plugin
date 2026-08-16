@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WordPress Embed Example — ODCG Calculator</title>
+    <style>
+      /* Simulates a generic WordPress theme */
+      :root {
+        --wp--preset--color--primary: #2271b1;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+          Ubuntu, Cantarell, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+        color: #1e1e1e;
+        line-height: 1.7;
+      }
+
+      .site-header {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .site-title {
+        font-size: 1.5rem;
+        margin: 0;
+        color: var(--wp--preset--color--primary);
+      }
+
+      .entry-content p {
+        margin-bottom: 1.25rem;
+      }
+
+      .embed-note {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <h1 class="site-title">Example WordPress Site</h1>
+    </header>
+
+    <article class="entry-content">
+      <p>
+        This page demonstrates the ODCG calculator embedded via a script tag, the
+        same way you would paste it into a WordPress Custom HTML block. Try adding
+        multiple lines and watch the grand total update.
+      </p>
+
+      <!-- BEGIN embed snippet (copy this into WordPress) -->
+      <div id="odcg-calculator"></div>
+      <script
+        src="../dist/odcg.min.js"
+        data-target="#odcg-calculator"
+        data-formula="default"
+      ></script>
+      <!-- END embed snippet -->
+
+      <p class="embed-note">
+        The widget above inherits this page's font and color. Replace
+        <code>../dist/odcg.min.js</code> with your hosted CDN URL in production.
+      </p>
+    </article>
+  </body>
+</html>
