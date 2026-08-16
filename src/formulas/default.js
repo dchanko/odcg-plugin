@@ -48,6 +48,7 @@ export default {
   ],
   fallbackGrade: 'Reject',
   resultLabel: 'Inclusion Clarity Rating',
+  lineLabel: 'Inclusion',
   grandTotalLabel: 'Diamond Clarity Rating',
   minLines: 1,
   maxLines: null,

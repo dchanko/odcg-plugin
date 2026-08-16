@@ -158,6 +158,7 @@ export default {
   ],
   fallbackGrade: 'D',
   resultLabel: 'Result',
+  lineLabel: 'Line',
   grandTotalLabel: 'Grand Total',
   minLines: 1,
   maxLines: null,
@@ -175,6 +176,7 @@ export default {
 | `gradeRanges` | No | Array of `{ max, label }` thresholds. First match where `value < max` wins. Displays as `number (grade)`. |
 | `fallbackGrade` | No | Label when value exceeds all thresholds. Defaults to last range label. |
 | `resultLabel` | No | Label for each line's result row. Default: `"Result"`. |
+| `lineLabel` | No | Prefix for each calculation row header. Default: `"Line"`. Displays as `"Line 1"`, `"Line 2"`, etc. |
 | `grandTotalLabel` | No | Label for grand total row. Default: `"Grand Total"`. |
 | `minLines` | No | Minimum lines (remove disabled below this). Default: `1`. |
 | `maxLines` | No | Maximum lines (add disabled at cap). Default: unlimited. |

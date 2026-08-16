@@ -71,6 +71,11 @@ function renderLineErrors(container, errors) {
   container.appendChild(list);
 }
 
+function formatLineLabel(formula, lineIndex) {
+  const prefix = formula.lineLabel ?? 'Line';
+  return `${prefix} ${lineIndex + 1}`;
+}
+
 function createLineElement(formula, lineIndex, onRemove) {
   const line = document.createElement('div');
   line.className = 'odcg-line';
@@ -81,13 +86,13 @@ function createLineElement(formula, lineIndex, onRemove) {
 
   const lineLabel = document.createElement('span');
   lineLabel.className = 'odcg-line-label';
-  lineLabel.textContent = `Line ${lineIndex + 1}`;
+  lineLabel.textContent = formatLineLabel(formula, lineIndex);
 
   const removeBtn = document.createElement('button');
   removeBtn.type = 'button';
   removeBtn.className = 'odcg-line-remove';
   removeBtn.textContent = 'Remove';
-  removeBtn.setAttribute('aria-label', `Remove line ${lineIndex + 1}`);
+  removeBtn.setAttribute('aria-label', `Remove ${formatLineLabel(formula, lineIndex)}`);
   removeBtn.addEventListener('click', () => onRemove(line));
 
   header.appendChild(lineLabel);
@@ -129,16 +134,16 @@ function createLineElement(formula, lineIndex, onRemove) {
   return { line, resultOutput, errorsEl, removeBtn };
 }
 
-function renumberLines(linesContainer) {
+function renumberLines(linesContainer, formula) {
   const lines = linesContainer.querySelectorAll('.odcg-line');
   lines.forEach((lineEl, index) => {
     lineEl.dataset.lineIndex = String(index);
     const label = lineEl.querySelector('.odcg-line-label');
-    if (label) label.textContent = `Line ${index + 1}`;
+    if (label) label.textContent = formatLineLabel(formula, index);
 
     const removeBtn = lineEl.querySelector('.odcg-line-remove');
     if (removeBtn) {
-      removeBtn.setAttribute('aria-label', `Remove line ${index + 1}`);
+      removeBtn.setAttribute('aria-label', `Remove ${formatLineLabel(formula, index)}`);
     }
   });
 }
@@ -266,7 +271,7 @@ export function renderWidget(container, formula) {
 
     lineEntries.splice(index, 1);
     lineEl.remove();
-    renumberLines(linesContainer);
+    renumberLines(linesContainer, formula);
     updateControls();
     updateAll();
   }
