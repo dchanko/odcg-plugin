@@ -111,7 +111,7 @@ function createLineElement(formula, lineIndex, onRemove) {
 
   const resultLabel = document.createElement('span');
   resultLabel.className = 'odcg-result-label';
-  resultLabel.textContent = 'Result';
+  resultLabel.textContent = formula.resultLabel ?? 'Result';
 
   const resultOutput = document.createElement('output');
   resultOutput.className = 'odcg-result-value';

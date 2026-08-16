@@ -140,6 +140,7 @@ export default {
   formatGrandTotal(value) {
     return `$${value.toFixed(2)}`;
   },
+  resultLabel: 'Result',
   grandTotalLabel: 'Grand Total',
   minLines: 1,
   maxLines: null,
@@ -154,6 +155,7 @@ export default {
 | `formatResult(value)` | No | Formats each line's result for display |
 | `aggregateResults(validResults)` | No | Combines valid line results into grand total. Defaults to sum. |
 | `formatGrandTotal(value)` | No | Formats grand total. Falls back to `formatResult`. |
+| `resultLabel` | No | Label for each line's result row. Default: `"Result"`. |
 | `grandTotalLabel` | No | Label for grand total row. Default: `"Grand Total"`. |
 | `minLines` | No | Minimum lines (remove disabled below this). Default: `1`. |
 | `maxLines` | No | Maximum lines (add disabled at cap). Default: unlimited. |

@@ -1,12 +1,13 @@
 export default {
   id: 'default',
-  title: 'Calculator',
+  title: 'Objective Diamond Clarity Grading Calculator',
   fields: [
-    { name: 'amount', label: 'Amount', type: 'number', min: 0, step: 0.01, default: 100 },
-    { name: 'rate', label: 'Rate (%)', type: 'number', min: 0, max: 100, step: 0.1, default: 5 },
+    { name: 'height', label: 'Height (μm)', type: 'number', min: 1, step: 1, default: 10 },
+    { name: 'width', label: 'Width (μm)', type: 'number', min: 1, step: 1, default: 10 },
+    { name: 'contrast', label: 'Contrast (%)', type: 'number', min: 0, max: 100, step: 1, default: 50 },
   ],
   compute(values) {
-    return values.amount * (1 + values.rate / 100);
+    return Math.log2(Math.sqrt(values.height * values.width) * values.contrast / 250.0);
   },
   formatResult(value) {
     return value.toFixed(2);
@@ -17,7 +18,8 @@ export default {
   formatGrandTotal(value) {
     return value.toFixed(2);
   },
-  grandTotalLabel: 'Grand Total',
+  resultLabel: 'Inclusion Clarity Rating',
+  grandTotalLabel: 'Diamond Clarity Rating',
   minLines: 1,
   maxLines: null,
 };
