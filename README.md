@@ -126,6 +126,17 @@ export default {
   title: 'My Calculator',
   fields: [
     { name: 'amount', label: 'Amount', type: 'number', min: 0, step: 0.01 },
+    {
+      name: 'factor',
+      label: 'Description',
+      type: 'select',
+      valueType: 'number',
+      default: '1',
+      options: [
+        { value: '1', label: 'Description 1' },
+        { value: '2', label: 'Description 2' },
+      ],
+    },
   ],
   compute(values) {
     return values.amount * 2;
@@ -167,6 +178,18 @@ export default {
 | `grandTotalLabel` | No | Label for grand total row. Default: `"Grand Total"`. |
 | `minLines` | No | Minimum lines (remove disabled below this). Default: `1`. |
 | `maxLines` | No | Maximum lines (add disabled at cap). Default: unlimited. |
+
+### Field properties
+
+| Property | Applies to | Description |
+|----------|------------|-------------|
+| `name` | all | Key passed to `compute(values)` |
+| `label` | all | Display label |
+| `type` | all | `number`, `text`, or `select` |
+| `default` | all | Initial value |
+| `min`, `max`, `step` | number | Input constraints |
+| `options` | select | Array of `{ value, label }` pairs |
+| `valueType` | select | Set to `'number'` to coerce selected value to a number in `compute()` |
 
 Then rebuild: `npm run build`.
 

@@ -5,9 +5,24 @@ export default {
     { name: 'height', label: 'Height (μm)', type: 'number', min: 1, step: 1, default: 10 },
     { name: 'width', label: 'Width (μm)', type: 'number', min: 1, step: 1, default: 10 },
     { name: 'contrast', label: 'Contrast (%)', type: 'number', min: 0, max: 100, step: 1, default: 50 },
+    {
+      name: 'factor',
+      label: 'Position',
+      type: 'select',
+      valueType: 'number',
+      default: '1',
+      options: [
+        { value: '1', label: 'Inside the table or outside the table within the length of the star facet.' },
+        { value: '2', label: 'Outside the length of the star facet from the table and in the inner half of the girdle and main facets.' },
+        { value: '3', label: 'In the outer half of the main and girdle facets.' },
+        { value: '4', label: 'Touching or almost touching the girdle.' },
+      ],
+    },
   ],
   compute(values) {
-    return Math.log2(Math.sqrt(values.height * values.width) * values.contrast / 250.0);
+    const { height, width, contrast, factor } = values;
+    // factor is the selected key (1–4); incorporate into formula when defined
+    return Math.log2(Math.sqrt(height * width) * contrast / 250.0);
   },
   formatResult(value) {
     return value.toFixed(2);

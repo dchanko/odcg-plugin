@@ -53,6 +53,10 @@
   outline-offset: 1px;
 }
 
+select.odcg-input {
+  cursor: pointer;
+}
+
 .odcg-error-panel {
   font-size: 0.875rem;
   color: #b32d2e;

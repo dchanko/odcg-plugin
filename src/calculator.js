@@ -17,6 +17,18 @@ function parseFieldValue(field, rawValue) {
     return { value: num, error: null };
   }
 
+  if (field.type === 'select') {
+    if (!Array.isArray(field.options) || field.options.length === 0) {
+      return { value: null, error: `${field.label} has no options configured.` };
+    }
+    const match = field.options.find((opt) => String(opt.value) === String(rawValue));
+    if (!match) {
+      return { value: null, error: `${field.label} has an invalid selection.` };
+    }
+    const value = field.valueType === 'number' ? Number(match.value) : String(match.value);
+    return { value, error: null };
+  }
+
   return { value: String(rawValue), error: null };
 }
 
