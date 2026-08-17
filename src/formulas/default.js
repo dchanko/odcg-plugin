@@ -2,20 +2,21 @@ export default {
   id: 'default',
   title: 'Objective Diamond Clarity Grading Calculator',
   fields: [
-    { name: 'height', label: 'Height (μm)', type: 'number', min: 1, step: 1, default: 10 },
-    { name: 'width', label: 'Width (μm)', type: 'number', min: 1, step: 1, default: 10 },
-    //{ name: 'contrast', label: 'Contrast (%)', type: 'number', min: 0, max: 100, step: 1, default: 50 },
+    { name: 'height', label: 'Height (μm)', type: 'number', min: 1, step: 1, default: 100 },
+    { name: 'width', label: 'Width (μm)', type: 'number', min: 1, step: 1, default: 100 },
     {
       name: 'contrast',
       label: 'Contrast',
-      type: 'select',
-      valueType: 'number',
-      default: '0',
+      type: 'range',
+      min: -1,
+      max: 1,
+      step: 0.1,
+      default: 0,
       options: [
         { value: '-1', label: 'Low contrast; difficult to observe with overhead lighting; e.g. a "cloud".' },
-        { value: '-.5', label: 'In between a cloud and typical crystals and feathers.' },
+        { value: '-0.5', label: 'In between a cloud and typical crystals and feathers.' },
         { value: '0', label: 'Typical contrast of a clear or white crystal or feather as seen with overhead lighting.' },
-        { value: '.5', label: 'A more solid white or darker than usual crystal or feather between typical and high contrast.' },
+        { value: '0.5', label: 'A more solid white or darker than usual crystal or feather between typical and high contrast.' },
         { value: '1', label: 'High contrast with overhead lighting; black on a light background or a bright reflector on a dark background.' },
       ],
     },
@@ -36,7 +37,7 @@ export default {
   compute(values) {
     const { height, width, contrast, position } = values;
 
-    var score = Math.log2(Math.sqrt(height * width) * contrast / 25.0);
+    var score = Math.log2(Math.sqrt(height * width) / 25.0);
 
     score += contrast;
 
@@ -56,7 +57,7 @@ export default {
         score = score;
     }
 
-    return score;
+    return score < 0 ? 0 : score;
   },
   
   formatResult(value) {

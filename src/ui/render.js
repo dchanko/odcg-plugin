@@ -4,6 +4,7 @@ import {
   formatResultDisplay,
   computeGrandTotal,
   formatGrandTotalDisplay,
+  getFieldDescription,
 } from '../calculator.js';
 
 function createFieldElement(field, lineIndex) {
@@ -27,6 +28,34 @@ function createFieldElement(field, lineIndex) {
       opt.textContent = option.label;
       input.appendChild(opt);
     }
+  } else if (field.type === 'range') {
+    input = document.createElement('input');
+    input.type = 'range';
+    if (field.min != null) input.min = field.min;
+    if (field.max != null) input.max = field.max;
+    if (field.step != null) input.step = field.step;
+    input.className = 'odcg-range';
+
+    const description = document.createElement('span');
+    description.className = 'odcg-range-description';
+    description.setAttribute('aria-live', 'polite');
+
+    function updateDescription() {
+      description.textContent = getFieldDescription(field, Number(input.value));
+    }
+
+    input.addEventListener('input', updateDescription);
+    input.addEventListener('change', updateDescription);
+
+    input.id = inputId;
+    input.name = field.name;
+    if (field.default != null) input.value = field.default;
+    updateDescription();
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(input);
+    wrapper.appendChild(description);
+    return { wrapper, input };
   } else {
     input = document.createElement('input');
     input.type = field.type === 'number' ? 'number' : 'text';

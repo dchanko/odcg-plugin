@@ -187,11 +187,12 @@ export default {
 |----------|------------|-------------|
 | `name` | all | Key passed to `compute(values)` |
 | `label` | all | Display label |
-| `type` | all | `number`, `text`, or `select` |
+| `type` | all | `number`, `text`, `select`, or `range` |
 | `default` | all | Initial value |
 | `min`, `max`, `step` | number | Input constraints |
-| `options` | select | Array of `{ value, label }` pairs |
 | `valueType` | select | Set to `'number'` to coerce selected value to a number in `compute()` |
+| `options` | select, range | Array of `{ value, label }`. For `range`, the label closest to the current value is shown. |
+| `rangeLabels` | range | Alternative to `options`: array of `{ max, label }` thresholds for descriptions |
 
 Then rebuild: `npm run build`.
 

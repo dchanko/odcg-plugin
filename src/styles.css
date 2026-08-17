@@ -57,6 +57,18 @@ select.odcg-input {
   cursor: pointer;
 }
 
+.odcg-range {
+  width: 100%;
+  accent-color: var(--odcg-accent);
+  cursor: pointer;
+}
+
+.odcg-range-description {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
 .odcg-error-panel {
   font-size: 0.875rem;
   color: #b32d2e;

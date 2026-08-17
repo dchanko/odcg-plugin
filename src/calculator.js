@@ -3,7 +3,7 @@ function parseFieldValue(field, rawValue) {
     return { value: null, error: null };
   }
 
-  if (field.type === 'number') {
+  if (field.type === 'number' || field.type === 'range') {
     const num = Number(rawValue);
     if (Number.isNaN(num)) {
       return { value: null, error: `${field.label} must be a number.` };
@@ -30,6 +30,35 @@ function parseFieldValue(field, rawValue) {
   }
 
   return { value: String(rawValue), error: null };
+}
+
+export function getFieldDescription(field, value) {
+  if (Array.isArray(field.options)) {
+    const numValue = Number(value);
+    let closest = null;
+    let closestDistance = Infinity;
+
+    for (const opt of field.options) {
+      const optValue = Number(opt.value);
+      if (Number.isNaN(optValue)) continue;
+      const distance = Math.abs(optValue - numValue);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closest = opt;
+      }
+    }
+
+    if (closest) return closest.label;
+  }
+
+  if (Array.isArray(field.rangeLabels)) {
+    for (const range of field.rangeLabels) {
+      if (value < range.max) return range.label;
+    }
+    return field.rangeLabels[field.rangeLabels.length - 1]?.label ?? '';
+  }
+
+  return '';
 }
 
 export function validateFields(formula, rawValues) {
