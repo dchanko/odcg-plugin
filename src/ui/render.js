@@ -7,11 +7,11 @@ import {
   getFieldDescription,
 } from '../calculator.js';
 
-function createFieldElement(field, lineIndex) {
+function createFieldElement(field, idSuffix) {
   const wrapper = document.createElement('div');
   wrapper.className = 'odcg-field';
 
-  const inputId = `odcg-${field.name}-${lineIndex}`;
+  const inputId = `odcg-${field.name}-${idSuffix}`;
 
   const label = document.createElement('label');
   label.className = 'odcg-label';
@@ -131,7 +131,7 @@ function createLineElement(formula, lineIndex, onRemove) {
   fieldsContainer.className = 'odcg-fields';
 
   for (const field of formula.fields) {
-    const { wrapper } = createFieldElement(field, lineIndex);
+    const { wrapper } = createFieldElement(field, String(lineIndex));
     fieldsContainer.appendChild(wrapper);
   }
 
@@ -161,6 +161,38 @@ function createLineElement(formula, lineIndex, onRemove) {
   line.appendChild(resultSection);
 
   return { line, resultOutput, errorsEl, removeBtn };
+}
+
+function createContextSection(formula) {
+  if (!formula.contextFields?.length) return null;
+
+  const section = document.createElement('div');
+  section.className = 'odcg-context';
+
+  if (formula.contextLabel) {
+    const title = document.createElement('h3');
+    title.className = 'odcg-context-title';
+    title.textContent = formula.contextLabel;
+    section.appendChild(title);
+  }
+
+  const fieldsContainer = document.createElement('div');
+  fieldsContainer.className = 'odcg-context-fields';
+
+  for (const field of formula.contextFields) {
+    const { wrapper } = createFieldElement(field, 'ctx');
+    fieldsContainer.appendChild(wrapper);
+  }
+
+  const errorsEl = document.createElement('div');
+  errorsEl.className = 'odcg-context-errors';
+  errorsEl.setAttribute('role', 'alert');
+  errorsEl.hidden = true;
+
+  section.appendChild(fieldsContainer);
+  section.appendChild(errorsEl);
+
+  return { section, errorsEl };
 }
 
 function renumberLines(linesContainer, formula) {
@@ -193,14 +225,18 @@ export function renderWidget(container, formula) {
   form.className = 'odcg-form';
   form.noValidate = true;
 
+  const context = createContextSection(formula);
+  const contextSection = context?.section ?? null;
+  const contextErrorsEl = context?.errorsEl ?? null;
+
   const linesContainer = document.createElement('div');
   linesContainer.className = 'odcg-lines';
 
   const addBtn = document.createElement('button');
   addBtn.type = 'button';
   addBtn.className = 'odcg-add-line';
-  addBtn.textContent = '+ Add line';
-  addBtn.setAttribute('aria-label', 'Add calculation line');
+  addBtn.textContent = '+ Add ' + formula.lineLabel ?? 'line';
+  addBtn.setAttribute('aria-label', 'Add calculation ' + formula.lineLabel ?? 'line');
 
   const warningEl = document.createElement('div');
   warningEl.className = 'odcg-warning';
@@ -227,6 +263,10 @@ export function renderWidget(container, formula) {
   form.appendChild(warningEl);
   form.appendChild(grandTotalSection);
 
+  if (contextSection) {
+    form.insertBefore(contextSection, linesContainer);
+  }
+
   container.appendChild(heading);
   container.appendChild(form);
 
@@ -242,6 +282,29 @@ export function renderWidget(container, formula) {
   }
 
   function updateAll() {
+    let contextValues = {};
+
+    if (contextSection && formula.contextFields?.length) {
+      const rawContext = collectValues(contextSection, formula.contextFields);
+      const { values, errors, valid } = validateFields(
+        { fields: formula.contextFields },
+        rawContext,
+      );
+      renderLineErrors(contextErrorsEl, errors);
+
+      if (!valid) {
+        for (const entry of lineEntries) {
+          entry.resultOutput.textContent = '—';
+          renderLineErrors(entry.errorsEl, []);
+        }
+        warningEl.hidden = true;
+        grandTotalOutput.textContent = '—';
+        return;
+      }
+
+      contextValues = values;
+    }
+
     const validResults = [];
     let validCount = 0;
 
@@ -255,7 +318,8 @@ export function renderWidget(container, formula) {
         continue;
       }
 
-      const { result, error } = computeResult(formula, values);
+      const merged = { ...contextValues, ...values };
+      const { result, error } = computeResult(formula, merged);
       if (error) {
         renderLineErrors(entry.errorsEl, [error]);
         entry.resultOutput.textContent = '—';
@@ -290,6 +354,11 @@ export function renderWidget(container, formula) {
     }
 
     grandTotalOutput.textContent = formatGrandTotalDisplay(formula, result);
+  }
+
+  if (contextSection) {
+    contextSection.addEventListener('input', updateAll);
+    contextSection.addEventListener('change', updateAll);
   }
 
   function removeLine(lineEl) {

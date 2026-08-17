@@ -69,6 +69,34 @@ select.odcg-input {
   line-height: 1.4;
 }
 
+.odcg-context {
+  display: flex;
+  flex-direction: column;
+  gap: var(--odcg-gap);
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--odcg-border);
+  border-radius: var(--odcg-radius);
+  background: var(--odcg-surface);
+  margin-bottom: var(--odcg-gap);
+}
+
+.odcg-context-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.odcg-context-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--odcg-gap);
+}
+
+.odcg-context-errors {
+  font-size: 0.875rem;
+  color: #b32d2e;
+}
+
 .odcg-error-panel {
   font-size: 0.875rem;
   color: #b32d2e;

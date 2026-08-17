@@ -1,6 +1,11 @@
 export default {
   id: 'default',
   title: 'Objective Diamond Clarity Grading Calculator',
+  contextLabel: 'Diamond Details',
+  contextFields: [
+    { name: 'diamondHeight', label: 'Diamond Height (mm)', type: 'number', min: 0, step: 0.01, default: 6.5 },
+    { name: 'diamondWidth', label: 'Diamond Width (mm)', type: 'number', min: 0, step: 0.01, default: 6.5 },
+  ],
   fields: [
     { name: 'height', label: 'Height (μm)', type: 'number', min: 1, step: 1, default: 100 },
     { name: 'width', label: 'Width (μm)', type: 'number', min: 1, step: 1, default: 100 },
@@ -35,9 +40,23 @@ export default {
     },
   ],
   compute(values) {
-    const { height, width, contrast, position } = values;
+    const { diamondHeight, diamondWidth, height, width, contrast, position } = values;
+    
+    const diamondArea = diamondHeight * diamondWidth;
+    const tenPercentOfDiamondArea = diamondArea * 0.1;
+    const oneCaratArea = 6.5 * 6.5;
+    const inclusionArea = height * width;
+    const isLargeDiamond = diamondArea > oneCaratArea;
+    const shouldScale = isLargeDiamond && inclusionArea > tenPercentOfDiamondArea;
+    let scaledHeight = height;
+    let scaledWidth = width;
+    if (shouldScale) {
+      const scalingFactor = Math.sqrt(oneCaratArea) / Math.sqrt(diamondArea);
+      scaledHeight = height * scalingFactor;
+      scaledWidth = width * scalingFactor;
+    }
 
-    var score = Math.log2(Math.sqrt(height * width) / 25.0);
+    var score = Math.log2(Math.sqrt(scaledHeight * scaledWidth) / 25.0);
 
     score += contrast;
 

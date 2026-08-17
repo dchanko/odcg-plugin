@@ -116,6 +116,21 @@ The widget supports **multiple calculation lines** within a single embed. Users 
 - Incomplete or invalid lines are excluded from the grand total
 - A warning appears when some lines are incomplete: *"Total based on X of Y lines"*
 
+## Context fields
+
+Shared **context fields** appear once at the top of the widget (not repeated per line). Their values are merged into every line's `compute(values)` call. If context fields are invalid, all line calculations are blocked until they are corrected.
+
+```js
+contextLabel: 'Stone Details',
+contextFields: [
+  { name: 'caratWeight', label: 'Carat Weight', type: 'number', min: 0, step: 0.01, default: 1 },
+],
+fields: [ /* per-line fields */ ],
+compute(values) {
+  const { caratWeight, amount } = values; // context + line values merged
+},
+```
+
 ## Customizing the formula
 
 Edit or add files under [`src/formulas/`](src/formulas/) and register them in [`src/formulas/index.js`](src/formulas/index.js):
@@ -169,7 +184,7 @@ export default {
 
 | Property | Required | Description |
 |----------|----------|-------------|
-| `compute(values)` | Yes | Per-line calculation; returns a number |
+| `compute(values)` | Yes | Per-line calculation; returns a number. Receives merged context + line values. |
 | `formatResult(value)` | No | Formats each line's result for display |
 | `aggregateResults(validResults)` | No | Combines valid line results into grand total. Defaults to sum. |
 | `formatGrandTotal(value)` | No | Formats grand total. Falls back to `formatResult`. |
@@ -178,6 +193,8 @@ export default {
 | `resultLabel` | No | Label for each line's result row. Default: `"Result"`. |
 | `lineLabel` | No | Prefix for each calculation row header. Default: `"Line"`. Displays as `"Line 1"`, `"Line 2"`, etc. |
 | `grandTotalLabel` | No | Label for grand total row. Default: `"Grand Total"`. |
+| `contextLabel` | No | Heading for the shared context section. Hidden if omitted. |
+| `contextFields` | No | Array of field configs shared across all lines. Same schema as `fields`. |
 | `minLines` | No | Minimum lines (remove disabled below this). Default: `1`. |
 | `maxLines` | No | Maximum lines (add disabled at cap). Default: unlimited. |
 
