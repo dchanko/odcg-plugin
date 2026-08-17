@@ -46,11 +46,34 @@ Supported properties: `label`, `default`, `min`, `max`, `step`.
 npm install
 npm run dev      # local sandbox at http://localhost:5173
 npm run build    # outputs dist/odcg.min.js
+npm run build:docs  # builds dist/ and copies odcg.min.js into docs/ for GitHub Pages
 npm run preview  # serve built files locally
 ```
 
 - [`index.html`](index.html) — dev sandbox using the source module directly
 - [`examples/embed-snippet.html`](examples/embed-snippet.html) — production-style test page
+- [`docs/index.html`](docs/index.html) — GitHub Pages demo (see below)
+
+## Deploy demo (GitHub Pages)
+
+The live demo is served from the [`docs/`](docs/) folder.
+
+```bash
+npm run build:docs
+git add docs/
+git commit -m "Update GitHub Pages demo"
+git push
+```
+
+Enable in GitHub: **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main` → Folder: `/docs`**
+
+Live URL: `https://<username>.github.io/<repo>/` (e.g. `https://dchanko.github.io/odcg-plugin/`)
+
+For WordPress embeds, use the bundle URL: `https://<username>.github.io/<repo>/odcg.min.js`
+
+**Note:** `docs/odcg.min.js` is committed to the repo (unlike `dist/`). Run `npm run build:docs` before pushing calculator changes.
+
+Test locally: `npx serve docs` then open http://localhost:3000
 
 ## Hosting the bundle
 
