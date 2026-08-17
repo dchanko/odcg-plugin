@@ -4,9 +4,23 @@ export default {
   fields: [
     { name: 'height', label: 'Height (μm)', type: 'number', min: 1, step: 1, default: 10 },
     { name: 'width', label: 'Width (μm)', type: 'number', min: 1, step: 1, default: 10 },
-    { name: 'contrast', label: 'Contrast (%)', type: 'number', min: 0, max: 100, step: 1, default: 50 },
+    //{ name: 'contrast', label: 'Contrast (%)', type: 'number', min: 0, max: 100, step: 1, default: 50 },
     {
-      name: 'factor',
+      name: 'contrast',
+      label: 'Contrast',
+      type: 'select',
+      valueType: 'number',
+      default: '0',
+      options: [
+        { value: '-1', label: 'Low contrast; difficult to observe with overhead lighting; e.g. a "cloud".' },
+        { value: '-.5', label: 'In between a cloud and typical crystals and feathers.' },
+        { value: '0', label: 'Typical contrast of a clear or white crystal or feather as seen with overhead lighting.' },
+        { value: '.5', label: 'A more solid white or darker than usual crystal or feather between typical and high contrast.' },
+        { value: '1', label: 'High contrast with overhead lighting; black on a light background or a bright reflector on a dark background.' },
+      ],
+    },
+    {
+      name: 'position',
       label: 'Position',
       type: 'select',
       valueType: 'number',
@@ -20,10 +34,31 @@ export default {
     },
   ],
   compute(values) {
-    const { height, width, contrast, factor } = values;
-    // factor is the selected key (1–4); incorporate into formula when defined
-    return Math.log2(Math.sqrt(height * width) * contrast / 250.0);
+    const { height, width, contrast, position } = values;
+
+    var score = Math.log2(Math.sqrt(height * width) * contrast / 25.0);
+
+    score += contrast;
+
+    switch (position) {
+      case 2:
+        score = score < 5 ? score - 0.25 : score;
+      case 3:
+        if (score < 5) score = score - 0.5;
+        else if (score < 6) score = score - 0.25;
+        else score = score;
+      case 4:
+        if (score < 5) score = score - 1.0;
+        else if (score < 6) score = score - 0.5;
+        else score = score;
+      case 1:
+      default:
+        score = score;
+    }
+
+    return score;
   },
+  
   formatResult(value) {
     return value.toFixed(2);
   },
