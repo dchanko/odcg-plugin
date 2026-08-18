@@ -2,6 +2,8 @@
 
 A pure client-side calculator widget embedded into WordPress (or any website) via a single script tag. No PHP plugin, no backend, no iframe.
 
+See [CALCULATION.md](CALCULATION.md) for a human-readable description of inputs and scoring.
+
 ## Quick start (WordPress)
 
 Paste this into a **Custom HTML** block, classic editor HTML tab, or page builder HTML widget:
