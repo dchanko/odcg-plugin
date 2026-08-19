@@ -89,7 +89,7 @@ This derives a size-based score from the (possibly scaled) inclusion dimensions.
 score = baseScore + contrast
 ```
 
-The contrast value (−1 to +1) is added directly to the base score.
+The contrast value (−2 to +1) is added directly to the base score.
 
 ### Step 4 — Position penalties
 
