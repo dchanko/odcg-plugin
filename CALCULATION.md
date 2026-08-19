@@ -32,8 +32,8 @@ The slider runs from −1 to +1 in steps of 0.1. The description shown reflects 
 
 | Value | Description |
 |-------|-------------|
-| −1 | Low contrast; difficult to observe with overhead lighting; e.g. a "cloud". |
-| −0.5 | In between a cloud and typical crystals and feathers. |
+| −2 | Low contrast; difficult to observe with overhead lighting; e.g. a "cloud". |
+| −1 | In between a cloud and typical crystals and feathers. |
 | 0 | Typical contrast of a clear or white crystal or feather as seen with overhead lighting. |
 | 0.5 | A more solid white or darker than usual crystal or feather between typical and high contrast. |
 | 1 | High contrast with overhead lighting; black on a light background or a bright reflector on a dark background. |
