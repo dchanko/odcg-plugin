@@ -58,6 +58,8 @@ export default {
 
     var score = Math.log2(Math.sqrt(scaledHeight * scaledWidth) / 25.0);
 
+    if (contrast < 0) contrast *= 2;
+    
     score += contrast;
 
     switch (position) {
