@@ -62,20 +62,15 @@ export default {
     
     score += contrast;
 
-    switch (position) {
-      case 2:
-        score = score < 5 ? score - 0.25 : score;
-      case 3:
-        if (score < 5) score = score - 0.5;
-        else if (score < 6) score = score - 0.25;
-        else score = score;
-      case 4:
-        if (score < 5) score = score - 1.0;
-        else if (score < 6) score = score - 0.5;
-        else score = score;
-      case 1:
-      default:
-        score = score;
+    if (score < 5 && position >= 3)
+    {
+      var positionAdjustment = (1.0 - (score / 6.0)) * 0.25;
+      if (position == 4) positionAdjustment *= 2;
+      score -= positionAdjustment;
+    }
+    else if (score >= 5 && score < 6 && position >= 2) // SI_1
+    {
+      score -= 0.25; // TODO: -0.5 in a "large diamond"
     }
 
     return score < 0 ? 0 : score;
