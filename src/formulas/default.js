@@ -1,6 +1,9 @@
+import examples from './examples.js';
+
 export default {
   id: 'default',
   title: 'Objective Diamond Clarity Grading Calculator',
+  examples,
   contextLabel: 'Diamond Details',
   contextFields: [
     { name: 'diamondHeight', label: 'Diamond Height (mm)', type: 'number', min: 0, step: 0.01, default: 6.5 },

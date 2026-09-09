@@ -7,11 +7,17 @@ import {
   getFieldDescription,
 } from '../calculator.js';
 
-function createFieldElement(field, idSuffix) {
+function resolveFieldValue(field, initialValues) {
+  const value = initialValues?.[field.name];
+  return value != null ? value : field.default;
+}
+
+function createFieldElement(field, idSuffix, initialValues) {
   const wrapper = document.createElement('div');
   wrapper.className = 'odcg-field';
 
   const inputId = `odcg-${field.name}-${idSuffix}`;
+  const value = resolveFieldValue(field, initialValues);
 
   const label = document.createElement('label');
   label.className = 'odcg-label';
@@ -49,7 +55,7 @@ function createFieldElement(field, idSuffix) {
 
     input.id = inputId;
     input.name = field.name;
-    if (field.default != null) input.value = field.default;
+    if (value != null) input.value = value;
     updateDescription();
 
     wrapper.appendChild(label);
@@ -67,11 +73,31 @@ function createFieldElement(field, idSuffix) {
   input.id = inputId;
   input.name = field.name;
   input.className = 'odcg-input';
-  if (field.default != null) input.value = field.default;
+  if (value != null) input.value = value;
 
   wrapper.appendChild(label);
   wrapper.appendChild(input);
   return { wrapper, input };
+}
+
+function fieldDefaults(fields) {
+  const values = {};
+  for (const field of fields ?? []) {
+    if (field.default != null) values[field.name] = field.default;
+  }
+  return values;
+}
+
+function setFieldValues(container, fields, values) {
+  for (const field of fields ?? []) {
+    const input = container.querySelector(`[name="${field.name}"]`);
+    if (!input) continue;
+    const value = resolveFieldValue(field, values);
+    input.value = value != null ? value : '';
+    if (field.type === 'range') {
+      input.dispatchEvent(new Event('input', { bubbles: false }));
+    }
+  }
 }
 
 function collectValues(lineEl, fields) {
@@ -105,7 +131,7 @@ function formatLineLabel(formula, lineIndex) {
   return `${prefix} ${lineIndex + 1}`;
 }
 
-function createLineElement(formula, lineIndex, onRemove) {
+function createLineElement(formula, lineIndex, onRemove, initialValues) {
   const line = document.createElement('div');
   line.className = 'odcg-line';
   line.dataset.lineIndex = String(lineIndex);
@@ -131,7 +157,7 @@ function createLineElement(formula, lineIndex, onRemove) {
   fieldsContainer.className = 'odcg-fields';
 
   for (const field of formula.fields) {
-    const { wrapper } = createFieldElement(field, String(lineIndex));
+    const { wrapper } = createFieldElement(field, String(lineIndex), initialValues);
     fieldsContainer.appendChild(wrapper);
   }
 
@@ -161,6 +187,70 @@ function createLineElement(formula, lineIndex, onRemove) {
   line.appendChild(resultSection);
 
   return { line, resultOutput, errorsEl, removeBtn };
+}
+
+const EXAMPLE_PLACEHOLDER = '';
+const EXAMPLE_SCRATCH = '__scratch__';
+let exampleSelectSeq = 0;
+
+function createExamplesSection(formula) {
+  if (!formula.examples?.length) return null;
+
+  const section = document.createElement('div');
+  section.className = 'odcg-examples';
+
+  const selectId = `odcg-example-select-${++exampleSelectSeq}`;
+
+  const label = document.createElement('label');
+  label.className = 'odcg-label';
+  label.htmlFor = selectId;
+  label.textContent = 'Illustrative examples';
+
+  const hint = document.createElement('p');
+  hint.className = 'odcg-examples-hint';
+  hint.id = `${selectId}-hint`;
+  hint.textContent = 'Select an example to fill in the calculator. You can change any value afterward.';
+
+  const select = document.createElement('select');
+  select.id = selectId;
+  select.className = 'odcg-input';
+  select.setAttribute('aria-describedby', `${selectId}-hint ${selectId}-description`);
+
+  const placeholder = document.createElement('option');
+  placeholder.value = EXAMPLE_PLACEHOLDER;
+  placeholder.textContent = 'Choose an example…';
+  select.appendChild(placeholder);
+
+  const scratch = document.createElement('option');
+  scratch.value = EXAMPLE_SCRATCH;
+  scratch.textContent = 'Start from scratch';
+  select.appendChild(scratch);
+
+  for (const example of formula.examples) {
+    const option = document.createElement('option');
+    option.value = example.id;
+    option.textContent = example.label;
+    select.appendChild(option);
+  }
+
+  const description = document.createElement('p');
+  description.id = `${selectId}-description`;
+  description.className = 'odcg-examples-description';
+  description.hidden = true;
+
+  section.appendChild(label);
+  section.appendChild(hint);
+  section.appendChild(select);
+  section.appendChild(description);
+
+  return { section, select, description };
+}
+
+function setExampleDescription(descriptionEl, text) {
+  if (!descriptionEl) return;
+  const trimmed = text?.trim() ?? '';
+  descriptionEl.textContent = trimmed;
+  descriptionEl.hidden = trimmed === '';
 }
 
 function createContextSection(formula) {
@@ -225,6 +315,11 @@ export function renderWidget(container, formula) {
   form.className = 'odcg-form';
   form.noValidate = true;
 
+  const examples = createExamplesSection(formula);
+  const examplesSection = examples?.section ?? null;
+  const examplesSelect = examples?.select ?? null;
+  const examplesDescription = examples?.description ?? null;
+
   const context = createContextSection(formula);
   const contextSection = context?.section ?? null;
   const contextErrorsEl = context?.errorsEl ?? null;
@@ -267,10 +362,15 @@ export function renderWidget(container, formula) {
     form.insertBefore(contextSection, linesContainer);
   }
 
+  if (examplesSection) {
+    form.insertBefore(examplesSection, contextSection ?? linesContainer);
+  }
+
   container.appendChild(heading);
   container.appendChild(form);
 
   const lineEntries = [];
+  let applyingExample = false;
 
   function updateControls() {
     const lineCount = lineEntries.length;
@@ -356,9 +456,22 @@ export function renderWidget(container, formula) {
     grandTotalOutput.textContent = formatGrandTotalDisplay(formula, result);
   }
 
+  function markExampleStale() {
+    if (applyingExample || !examplesSelect) return;
+    if (examplesSelect.value === EXAMPLE_PLACEHOLDER) return;
+    examplesSelect.value = EXAMPLE_PLACEHOLDER;
+    setExampleDescription(examplesDescription, '');
+  }
+
+  function onUserValuesChanged() {
+    if (applyingExample) return;
+    markExampleStale();
+    updateAll();
+  }
+
   if (contextSection) {
-    contextSection.addEventListener('input', updateAll);
-    contextSection.addEventListener('change', updateAll);
+    contextSection.addEventListener('input', onUserValuesChanged);
+    contextSection.addEventListener('change', onUserValuesChanged);
   }
 
   function removeLine(lineEl) {
@@ -370,26 +483,91 @@ export function renderWidget(container, formula) {
     lineEntries.splice(index, 1);
     lineEl.remove();
     renumberLines(linesContainer, formula);
+    markExampleStale();
     updateControls();
     updateAll();
   }
 
-  function addLine() {
+  function addLine(initialValues, options = {}) {
     if (maxLines != null && lineEntries.length >= maxLines) return;
 
     const lineIndex = lineEntries.length;
-    const entry = createLineElement(formula, lineIndex, removeLine);
+    const entry = createLineElement(formula, lineIndex, removeLine, initialValues);
     lineEntries.push(entry);
     linesContainer.appendChild(entry.line);
 
-    entry.line.addEventListener('input', updateAll);
-    entry.line.addEventListener('change', updateAll);
+    entry.line.addEventListener('input', onUserValuesChanged);
+    entry.line.addEventListener('change', onUserValuesChanged);
 
+    if (!options.skipUpdate) {
+      updateControls();
+      updateAll();
+    }
+  }
+
+  function clearLines() {
+    for (const entry of lineEntries) {
+      entry.line.remove();
+    }
+    lineEntries.length = 0;
+  }
+
+  function applyExample(example) {
+    applyingExample = true;
+
+    if (contextSection && formula.contextFields?.length) {
+      setFieldValues(contextSection, formula.contextFields, example.context ?? {});
+    }
+
+    clearLines();
+
+    const lines = example.lines?.length ? example.lines : [fieldDefaults(formula.fields)];
+    for (const lineValues of lines) {
+      if (maxLines != null && lineEntries.length >= maxLines) break;
+      addLine(lineValues, { skipUpdate: true });
+    }
+
+    if (lineEntries.length === 0) {
+      addLine(undefined, { skipUpdate: true });
+    }
+
+    applyingExample = false;
     updateControls();
     updateAll();
   }
 
-  addBtn.addEventListener('click', addLine);
+  addBtn.addEventListener('click', () => {
+    markExampleStale();
+    addLine();
+  });
+
+  if (examplesSelect) {
+    examplesSelect.addEventListener('change', () => {
+      const selectedId = examplesSelect.value;
+      if (selectedId === EXAMPLE_PLACEHOLDER) {
+        setExampleDescription(examplesDescription, '');
+        return;
+      }
+
+      if (selectedId === EXAMPLE_SCRATCH) {
+        applyExample({
+          context: fieldDefaults(formula.contextFields),
+          lines: [fieldDefaults(formula.fields)],
+        });
+        setExampleDescription(
+          examplesDescription,
+          'Cleared to the calculator defaults. Edit any value to continue.',
+        );
+        return;
+      }
+
+      const example = formula.examples.find((item) => item.id === selectedId);
+      if (!example) return;
+
+      applyExample(example);
+      setExampleDescription(examplesDescription, example.description ?? '');
+    });
+  }
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();

@@ -69,6 +69,24 @@ select.odcg-input {
   line-height: 1.4;
 }
 
+.odcg-examples {
+  display: flex;
+  flex-direction: column;
+  gap: var(--odcg-gap);
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--odcg-border);
+  border-radius: var(--odcg-radius);
+  background: var(--odcg-surface);
+}
+
+.odcg-examples-hint,
+.odcg-examples-description {
+  margin: 0;
+  font-size: 0.875rem;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
 .odcg-context {
   display: flex;
   flex-direction: column;
