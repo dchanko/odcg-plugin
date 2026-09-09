@@ -7,8 +7,8 @@ export default {
     { name: 'diamondWidth', label: 'Diamond Width (mm)', type: 'number', min: 0, step: 0.01, default: 6.5 },
   ],
   fields: [
-    { name: 'height', label: 'Height (μm)', type: 'number', min: 1, step: 1, default: 100 },
-    { name: 'width', label: 'Width (μm)', type: 'number', min: 1, step: 1, default: 100 },
+    { name: 'height', label: 'Height (mm)', type: 'number', min: 0.001, step: 0.001, default: .10 },
+    { name: 'width', label: 'Width (mm)', type: 'number', min: 0.001, step: 0.001, default: .10 },
     {
       name: 'contrast',
       label: 'Contrast',
@@ -40,23 +40,24 @@ export default {
     },
   ],
   compute(values) {
-    const { diamondHeight, diamondWidth, height, width, contrast, position } = values;
+    const { diamondHeight, diamondWidth, height, width, position } = values;
+    let { contrast } = values;
     
     const diamondArea = diamondHeight * diamondWidth;
     const tenPercentOfDiamondArea = diamondArea * 0.1;
     const oneCaratArea = 6.5 * 6.5;
-    const inclusionArea = height * width;
+    const inclusionArea = height * 1000 * width * 1000
     const isLargeDiamond = diamondArea > oneCaratArea;
     const shouldScale = isLargeDiamond && inclusionArea > tenPercentOfDiamondArea;
-    let scaledHeight = height;
-    let scaledWidth = width;
+    let scaledHeight = height * 1000;
+    let scaledWidth = width * 1000;
     if (shouldScale) {
       const scalingFactor = Math.sqrt(oneCaratArea) / Math.sqrt(diamondArea);
-      scaledHeight = height * scalingFactor;
-      scaledWidth = width * scalingFactor;
+      scaledHeight = height * scalingFactor * 1000;
+      scaledWidth = width * scalingFactor * 1000;
     }
-
-    var score = Math.log2(Math.sqrt(scaledHeight * scaledWidth) / 25.0);
+    
+    var score = Math.log2(Math.sqrt(scaledHeight * scaledWidth / 25.0));
 
     if (contrast < 0) contrast *= 2;
     
@@ -80,7 +81,7 @@ export default {
     return value.toFixed(2);
   },
   aggregateResults(validResults) {
-    return validResults.reduce((sum, n) => sum + n, 0);
+    return Math.log(validResults.reduce((sum, n) => sum + Math.pow(Math.sqrt(25) * Math.pow(2, n), 2) / 25, 0)) / Math.log(4);
   },
   formatGrandTotal(value) {
     return value.toFixed(2);
