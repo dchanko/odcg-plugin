@@ -220,6 +220,7 @@ export default {
 | `grandTotalLabel` | No | Label for grand total row. Default: `"Grand Total"`. |
 | `contextLabel` | No | Heading for the shared context section. Hidden if omitted. |
 | `contextFields` | No | Array of field configs shared across all lines. Same schema as `fields`. |
+| `examples` | No | Array of illustrative presets shown in a dropdown. Selecting one fills context fields and recreates inclusion rows. Hidden if omitted or empty. |
 | `minLines` | No | Minimum lines (remove disabled below this). Default: `1`. |
 | `maxLines` | No | Maximum lines (add disabled at cap). Default: unlimited. |
 
@@ -238,13 +239,41 @@ export default {
 
 Then rebuild: `npm run build`.
 
+### Illustrative examples
+
+Add an `examples` array on a formula to show a dropdown above the context fields. Each entry fills the calculator with a complete stone:
+
+```js
+examples: [
+  {
+    id: 'typical-table-crystal',
+    label: 'Typical table crystal (VS2)',
+    description: 'One typical-contrast crystal in the table of a 1 ct stone.',
+    context: { diamondHeight: 6.5, diamondWidth: 6.5 },
+    lines: [
+      { height: 0.1, width: 0.1, contrast: 0, position: 1 },
+    ],
+  },
+],
+```
+
+| Property | Required | Description |
+|----------|----------|-------------|
+| `id` | Yes | Stable value used by the dropdown |
+| `label` | Yes | Dropdown text. If it ends with a grade in parentheses, tests check that grade against the live formula. |
+| `description` | No | Short note shown after the example is selected |
+| `context` | Yes | Values for `contextFields` (diamond details) |
+| `lines` | Yes | One object per inclusion row; keys match `fields` |
+
+Default examples live in [`src/formulas/examples.js`](src/formulas/examples.js) — add or edit stones there without changing UI code. The dropdown also includes **Start from scratch**, which restores field defaults.
+
 ## Project structure
 
 ```
 src/
 ├── embed.js           # Script-tag loader and bootstrap
 ├── calculator.js      # Validation and computation
-├── formulas/          # Formula definitions
+├── formulas/          # Formula definitions and illustrative examples
 ├── ui/render.js       # DOM rendering
 └── styles.css         # Theme-aware scoped styles
 dist/
